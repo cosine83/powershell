@@ -59,7 +59,7 @@ foreach ($computer in $computers)
             #WinRM is enabled, delete temp files via Invoke-Command
             Write-Host "WinRM is enabled on $computer, proceeding..."
             Write-Host "$computer - Deleting files via WinRM!"
-			#This Invoke-Command script block must be all on a single line or it will not work
+            #This Invoke-Command script block must be all on a single line or it will not work
             Invoke-Command -ComputerName $computer -ScriptBlock { foreach ($folder in $using:tempRM) {Remove-Item -Path $folder -Recurse -Force} }
             Write-Host -ForegroundColor Green "$computer - Done!"
         }
@@ -68,7 +68,7 @@ foreach ($computer in $computers)
             #WinRM not enabled, delete temp files via UNC path
             #UNC folder variable must be defined in the foreach loop or it will not populate computer names
             $tempUNC = @("\\$($computer)\c$\Windows\Temp\*", "\\$($computer)\c$\Documents and Settings\*\Local Settings\temp\*", "\\$($computer)\c$\Users\*\Appdata\Local\Temp\*", "\\$($computer)\c$\Users\*\Appdata\Local\Microsoft\Windows\Temporary Internet Files\*")
-			Write-Host "WinRM is not enabled on $computer, proceeding..."
+            Write-Host "WinRM is not enabled on $computer, proceeding..."
             Write-Host "$computer - Deleting files via UNC!"
             foreach ($folder in $tempUNC) {Remove-Item $folder -force -recurse}
             Write-Host -ForegroundColor Green "$computer - Done!"
