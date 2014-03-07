@@ -41,7 +41,7 @@ $tempRM = @("C:\Windows\Temp\*", "C:\Documents and Settings\*\Local Settings\tem
 	}
 	else {
         #launches PsExec, pushes out the batch file to the remote PC, and runs the batch file in an elevated command prompt
-		& psexec -accepteula "\\$($computer)" -h -u administrator -p password -f -c "EnableWinRM.bat"
+        & psexec -accepteula "\\$($computer)" -h -u administrator -p password -f -c "EnableWinRM.bat"
 	}
 }
  #>
