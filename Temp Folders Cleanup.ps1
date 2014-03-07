@@ -40,6 +40,7 @@ $tempRM = @("C:\Windows\Temp\*", "C:\Documents and Settings\*\Local Settings\tem
 		Write-Host "WinRM is already enabled on $computer!"
 	}
 	else {
+        #launches PsExec, pushes out the batch file to the remote PC, and runs the batch file in an elevated command prompt
 		& psexec -accepteula "\\$($computer)" -h -u administrator -p password -f -c "EnableWinRM.bat"
 	}
 }
