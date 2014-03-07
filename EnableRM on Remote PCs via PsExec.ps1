@@ -21,10 +21,10 @@ Copy and launch a batch file on remote computer using PsExec, if the test errors
 foreach ($computer in $computers)
 {
 	if(Test-WSMan $computer -ErrorAction SilentlyContinue){
-		Write-Host "WinRM is enabled on $computer!"
+        Write-Host "WinRM is enabled on $computer!"
 	}
 	else {
         #launches PsExec, pushes out the batch file to the remote PC, and runs the batch file in an elevated command prompt
-		& psexec -accepteula "\\$($computer)" -h -u administrator -p password -f -c "EnableWinRM.bat"
+        & psexec -accepteula "\\$($computer)" -h -u administrator -p password -f -c "EnableWinRM.bat"
 	}
 }

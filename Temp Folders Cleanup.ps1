@@ -37,7 +37,7 @@ $tempRM = @("C:\Windows\Temp\*", "C:\Documents and Settings\*\Local Settings\tem
 <# foreach ($computer in $computers)
 {
 	if(Test-WSMan $computer){
-		Write-Host "WinRM is already enabled on $computer!"
+        Write-Host "WinRM is already enabled on $computer!"
 	}
 	else {
         #launches PsExec, pushes out the batch file to the remote PC, and runs the batch file in an elevated command prompt
