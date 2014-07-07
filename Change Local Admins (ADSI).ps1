@@ -46,6 +46,7 @@ foreach ($computer in $computers)
 		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2 -BOR 65536))
 		$LocalUser.SetInfo()
 		Write-Host "Local user modified and password set!"
+		}
 	}
 	else
 	{
