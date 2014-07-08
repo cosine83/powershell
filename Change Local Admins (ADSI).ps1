@@ -1,6 +1,6 @@
 Import-Module activedirectory
 
-$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "Continue"
 
 $searchbase = "OU=IT Testing,OU=IT,OU=Computers,OU=Aliante,DC=aliantegaming,DC=com"
 
@@ -22,30 +22,32 @@ foreach ($computer in $computers)
 		$LocalAdmin = [adsi]"WinNT://$computer/Administrator,user"
 		$LocalAdmin.SetPassword($LocalAdminPW)
 		$LocalAdmin.SetInfo()
-		$LocalAdmin.InvokeSet("UserFlags",($LocalAdmin.UserFlags[0] -BOR 2 + 65536))
+		$LocalAdmin.InvokeSet("UserFlags",($LocalAdmin.UserFlags[0] -BOR 2))
 		$LocalAdmin.SetInfo()
 		Write-Host "Local admin password is set and account disabled!"
+		$LocalComputer = ([adsi]"WinNT://$computer,computer")
+		$LocalComputerUsers = ($LocalComputer.psbase.children | Where-Object {$_.psBase.schemaClassName -eq "User"} | Select-Object -expand Name)
+		$LCUFound = $LocalComputerUsers -contains "AG"
 		$LocalUser = [adsi]"WinNT://$computer/AG,user"
-		If($LocalUser -eq $Null)
-		{
-		Write-Host "Creating new local admin user!"
-		$NewUser = "AG"
-		$LocalComputer = [adsi]"WinNT://$computer,computer"
-		$CreateLocalUser = $LocalComputer.Create('User', $NewUser)
-		$CreateLocalUser.SetPassword($LocalUserPW)
-		$CreateLocalUser.SetInfo()
-		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2 -BOR 65536))
-		$LocalUser.SetInfo()
-		([adsi]"WinNT://$computer/Administrators,group").Add("WinNT://$computer/AG")
-		Write-Host "New user created, password set, and added to local admin group!"
-		}
-		Else
+		If($LCUFound)
 		{
 		Write-Host "Local user already exists, setting password and user properties!"
 		$LocalUser.SetPassword($LocalUserPW)
-		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2 -BOR 65536))
+		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2))
 		$LocalUser.SetInfo()
-		Write-Host "Local user modified and password set!"
+		Write-Host "Local user modified and password set!"		
+		}
+		Else
+		{
+		Write-Host "New local admin does not exist, creating!"
+		$NewUser = "AG"
+		$CreateLocalUser = $LocalComputer.Create('User', $NewUser)
+		$CreateLocalUser.SetPassword($LocalUserPW)
+		$CreateLocalUser.SetInfo()
+		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2))
+		$LocalUser.SetInfo()
+		([adsi]"WinNT://$computer/Administrators,group").Add("WinNT://$computer/AG")
+		Write-Host "New user created, password set, and added to local admin group!"
 		}
 	}
 	else
