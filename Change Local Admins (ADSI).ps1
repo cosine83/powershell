@@ -2,7 +2,7 @@ Import-Module activedirectory
 
 $ErrorActionPreference = "Continue"
 
-$searchbase = "OU=IT Testing,OU=IT,OU=Computers,OU=Aliante,DC=aliantegaming,DC=com"
+$searchbase = "OU=Testing,DC=domain,DC=com"
 
 $query = Get-ADComputer -Filter * -SearchBase $searchbase | Select Name | Sort Name
 $computers = $query.Name
