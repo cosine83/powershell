@@ -4,6 +4,17 @@
 #Load Active Directory PowerShell Module
 Import-Module activedirectory
 
+Write-Host "Checking if log folder exists and making it if not"
+$Path = "C:\PowerShell Logs"
+If (!(Test-Path -Path $Path ))
+{
+	New-Item -ItemType Directory -Path $Path
+}	
+Else
+{
+	Write-Host "Folder exists, proceeding with script execution"
+}
+
 #AD Path to search for computers to clean
 $baseAD = "OU=Computers,OU=Test,DC=domain,DC=com"
 $Date = Get-Date -format MM.dd.yyyy
