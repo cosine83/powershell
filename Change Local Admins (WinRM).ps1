@@ -59,13 +59,6 @@ foreach ($computer in $computers)
 			Write-Host "Added to offline log file for $Date"
 		}
 	}
-	else
-	{
-		$offline = $computer | Out-File -Append -noClobber -filePath "C:\PowerShell Logs\Offline Computers $Date.csv" -width 20
-		Write-Host -ForegroundColor Red "Can't connect to $computer"
-		$offline
-		Write-Host "Added to offline log file for $Date"
-	}
 }
 Write-Host "All offline computers have been written to the log file"
 Write-Host "Opening log file..."
