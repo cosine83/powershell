@@ -2,7 +2,28 @@ Import-Module activedirectory
 
 $ErrorActionPreference = "SilentlyContinue"
 
-$searchbase = "OU=IT Testing,OU=IT,OU=Computers,OU=Aliante,DC=aliantegaming,DC=com"
+Write-Host "Checking if log folder exists and making it if not"
+$Path = "C:\PowerShell Logs"
+If (!(Test-Path -Path $Path ))
+{
+	New-Item -ItemType Directory -Path $Path
+}	
+Else
+{
+	Write-Host "Folder exists, proceeding with script execution"
+}	
+$baseAD = "OU=Computers,OU=Aliante,DC=aliantegaming,DC=com"
+$Date = Get-Date -format MM.dd.yyyy
+
+$Comp = Read-Host "Please define a computer"
+$OU = Read-Host "Please define an OU"
+$askNoGPI = Read-Host "Are the computers under the No GP Inheritance OU? (y/n)"
+
+$searchbase = $baseAD
+
+if ($askNoGPI -eq 'y') { $searchbase = "OU=No GP Inheritence,$searchbase" }
+if ($OU) { $searchbase = "OU=$OU,$searchbase" }
+if ($Comp) { $searchbase = "CN=$Comp,$searchbase" }
 
 $query = Get-ADComputer -Filter * -SearchBase $searchbase | Select Name | Sort Name
 $computers = $query.Name
@@ -32,11 +53,20 @@ foreach ($computer in $computers)
 		}
 		else
 		{
-			Write-Host "WinRM is unavailable, please run the ADSI script."
+			Write-Host "WinRM is unavailable, please try the ADSI script."
+			$offline = $computer | Out-File -Append -noClobber -filePath "C:\PowerShell Logs\Offline Computers $Date.csv" -width 20
+			$offline
+			Write-Host "Added to offline log file for $Date"
 		}
 	}
 	else
 	{
-		Write-Host -ForegroundColor Red "Can't connect to $computer!"
+		$offline = $computer | Out-File -Append -noClobber -filePath "C:\PowerShell Logs\Offline Computers $Date.csv" -width 20
+		Write-Host -ForegroundColor Red "Can't connect to $computer"
+		$offline
+		Write-Host "Added to offline log file for $Date"
 	}
 }
+Write-Host "All offline computers have been written to the log file"
+Write-Host "Opening log file..."
+Invoke-Item "C:\PowerShell Logs\Offline Computers $Date.csv"
