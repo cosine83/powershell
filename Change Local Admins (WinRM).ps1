@@ -12,7 +12,7 @@ Else
 {
 	Write-Host "Folder exists, proceeding with script execution"
 }	
-$baseAD = "OU=Computers,OU=Aliante,DC=aliantegaming,DC=com"
+$baseAD = "OU=Computers,OU=Test,DC=domain,DC=com"
 $Date = Get-Date -format MM.dd.yyyy
 
 $Comp = Read-Host "Please define a computer"
