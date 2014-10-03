@@ -74,7 +74,7 @@ foreach ($computer in $computers)
     else
     {
         #PC was offline
-        $offline = $computer | Out-File -Append -noClobber -filePath "C:\PowerShell Logs\Offline Computers $Date.csv" -width 20
+        $offline = $computer | Out-File -Append -noClobber -filePath "C:\PowerShell Logs\Cleanup - Offline Computers $Date.csv" -width 20
 		Write-Host -ForegroundColor Red "Can't connect to $computer"
 		$offline
 		Write-Host "Added to offline log file for $Date"
