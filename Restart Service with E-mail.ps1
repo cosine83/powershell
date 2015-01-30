@@ -39,7 +39,7 @@ If (!$Stopped)
 		Send-MailMessage -SmtpServer $SMTP -From $From -To $To -Subject "Scheduled Task" -Body "The scheduled task completed and restarted the Test Service Successfully on $Date!"
 	}
 	Catch {
-		Write-EventLog -LogName Application -Source "WFTD Scheduled Task" -EntryType Error -EventID 1337 -Message "Failed to start theTest service."
+		Write-EventLog -LogName Application -Source "Scheduled Task" -EntryType Error -EventID 1337 -Message "Failed to start theTest service."
 		Send-MailMessage -SmtpServer $SMTP -From $From -To $To -Subject "Scheduled Task" -Body "Failed to start the Test Service on $Date!"
 		Break 
 	}
