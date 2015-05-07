@@ -17,11 +17,9 @@ $Date = Get-Date -format MM.dd.yyyy
 
 $Comp = Read-Host "Please define a computer"
 $OU = Read-Host "Please define an OU"
-$askNoGPI = Read-Host "Are the computers under the No GP Inheritance OU? (y/n)"
 
 $searchbase = $baseAD
 
-if ($askNoGPI -eq 'y') { $searchbase = "OU=No GP Inheritance,$searchbase" }
 if ($OU) { $searchbase = "OU=$OU,$searchbase" }
 if ($Comp) { $searchbase = "CN=$Comp,$searchbase" }
 
