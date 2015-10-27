@@ -51,7 +51,7 @@ foreach ($computer in $computers)
 		{
 		Write-Host "Local user already exists, setting password and user properties"
 		$LocalUser.SetPassword($LocalUserPW)
-		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2))
+		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 65600))
 		$LocalUser.SetInfo()
 		Write-Host "Local user modified and password set"		
 		}
@@ -62,7 +62,7 @@ foreach ($computer in $computers)
 		$CreateLocalUser = $LocalComputer.Create('User', $NewUser)
 		$CreateLocalUser.SetPassword($LocalUserPW)
 		$CreateLocalUser.SetInfo()
-		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 2))
+		$LocalUser.InvokeSet("UserFlags",($LocalUser.UserFlags[0] -BXOR 65600))
 		$LocalUser.SetInfo()
 		([adsi]"WinNT://$computer/Administrators,group").Add("WinNT://$computer/AG")
 		Write-Host "New user created, password set, and added to local admin group"
