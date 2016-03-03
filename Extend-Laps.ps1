@@ -41,18 +41,19 @@ Import-Module ActiveDirectory
 
 Function Store-AdmPassword() {
 	Param(
-		[int]$Length=15,
 		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
 	)
-	$GenPass = [System.Web.Security.Membership]::GeneratePassword($Length,2)
+	$Date = Get-Date
+	$GenPass = [System.Web.Security.Membership]::GeneratePassword(30,2)
 	Set-ADComputer -Identity $ComputerName -replace @{extensionAttribute1="$GenPass"}
+	Set-ADComputer -Identity $ComputerName -replace @{extensionAttribute2="$Date"}
 }
 	
 Function Get-AdmPassword() {
 	Param(
 		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
 	)
-	Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1 | Select Name, extensionAttribute1
+	Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1,extensionAttribute2 | Select @{Name="Computer";Expression={$_.Name}}, @{Name="Password";Expression={$_.extensionAttribute1}}, @{Name="Set On";Expression={$_.extensionAttribute2}}
 }
 
 Function Set-SecureAdmPassword() {
