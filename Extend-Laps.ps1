@@ -1,0 +1,72 @@
+<#
+.Synopsis
+Generates, stores, and gets randomly generated passwords for AD computers. This would be supplemental to Microsoft's LAPS since it can only manage one local admin account.
+
+.DESCRIPTION
+This set of functions will use a .NET assemply to generate a password with a minimum of 15 characters, store it in a computer's AD object extensionAttribute1. This is supplemental to Microsoft's LAPS since it can only manage one local admin account.
+
+.NOTES
+Name: Extend-Laps
+Author: Justin Grathwohl
+Version: 1.0
+DateUpdated:2016-03-02
+
+.PARAMETER ComputerName
+The name of the AD-joined computer
+
+.PARAMETER Length
+The desired length of the password generated
+
+.EXAMPLE
+Store-AdmPassword -ComputerName test01 -Length 30
+
+.Description
+Creates and stores a 30 character, randomly generated password for AD-joined computer test01
+
+.EXAMPLE
+Get-AdmPassword -ComputerName test01
+
+.Description
+Outputs the computer and the password set in extensionAttribute1
+
+.EXAMPLE
+Set-SecureAdmPassword -ComputerName test01
+
+.Description
+Reads the AD stored password and sets it on the built-in local administrator account and removes the user flag so the passsword is able to expire. Can change BXOR to BOR to make it not expire.
+#>
+
+[Reflection.Assembly]::LoadWithPartialName("System.Web") | Out-Null
+Import-Module ActiveDirectory
+
+Function Store-AdmPassword() {
+	Param(
+		[int]$Length=15,
+		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
+	)
+	$GenPass = [System.Web.Security.Membership]::GeneratePassword($Length,2)
+	Set-ADComputer -Identity $ComputerName -replace @{extensionAttribute1="$GenPass"}
+}
+	
+Function Get-AdmPassword() {
+	Param(
+		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
+	)
+	Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1 | Select Name, extensionAttribute1
+}
+
+Function Set-SecureAdmPassword() {
+	Param (
+		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
+		
+	)
+	$StoredPwd = Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1
+	$AdmPwd = ConvertTo-SecureString $StoredPwd.extensionAttribute1 -AsPlainText -Force
+	$Password = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($AdmPwd))
+	$BuiltinAdmin = [adsi]"WinNT://$ComputerName/Administrator,user"
+	$BuiltinAdmin.SetPassword($Password)
+	$BuiltinAdmin.SetInfo()
+	$BuiltinAdmin.InvokeSet("UserFlags",($BuiltinAdmin.UserFlags[0] -BXOR 65536))
+	$BuiltinAdmin.CommitChanges()
+	$BuiltinAdmin.SetInfo()
+}
