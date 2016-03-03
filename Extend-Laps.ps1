@@ -56,7 +56,7 @@ Function Get-AdmPassword() {
 	Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1,extensionAttribute2 | Select @{Name="Computer";Expression={$_.Name}}, @{Name="Password";Expression={$_.extensionAttribute1}}, @{Name="Set On";Expression={$_.extensionAttribute2}}
 }
 
-Function Set-SecureAdmPassword() {
+Function Set-AdmPassword() {
 	Param (
 		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
 		
