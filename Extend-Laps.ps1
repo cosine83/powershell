@@ -64,7 +64,7 @@ Function Set-AdmPassword() {
 	$StoredPwd = Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1
 	$AdmPwd = ConvertTo-SecureString $StoredPwd.extensionAttribute1 -AsPlainText -Force
 	$Password = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($AdmPwd))
-	$BuiltinAdmin = [adsi]"WinNT://$ComputerName/Administrator,user"
+	$BuiltinAdmin = [adsi]"WinNT://$ComputerName/S-1-5-21-229796200-4191767827-1316253887-500,user"
 	$BuiltinAdmin.SetPassword($Password)
 	$BuiltinAdmin.SetInfo()
 	$BuiltinAdmin.InvokeSet("UserFlags",($BuiltinAdmin.UserFlags[0] -BXOR 65536))
