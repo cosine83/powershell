@@ -8,8 +8,8 @@ This set of functions will use a .NET assemply to generate a password with a min
 .NOTES
 Name: Extend-Laps
 Author: Justin Grathwohl
-Version: 1.0
-DateUpdated:2016-03-02
+Version: 1.1
+DateUpdated:2016-03-21
 
 .PARAMETER ComputerName
 The name of the AD-joined computer
@@ -41,6 +41,7 @@ Import-Module ActiveDirectory
 
 Function Store-AdmPassword() {
 	Param(
+	[Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
 		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
 	)
 	$Date = Get-Date
@@ -51,6 +52,7 @@ Function Store-AdmPassword() {
 	
 Function Get-AdmPassword() {
 	Param(
+	[Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
 		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
 	)
 	Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1,extensionAttribute2 | Select @{Name="Computer";Expression={$_.Name}}, @{Name="Password";Expression={$_.extensionAttribute1}}, @{Name="Set On";Expression={$_.extensionAttribute2}}
@@ -58,6 +60,7 @@ Function Get-AdmPassword() {
 
 Function Set-AdmPassword() {
 	Param (
+	[Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
 		[Microsoft.ActiveDirectory.Management.ADComputer]$ComputerName
 		
 	)
