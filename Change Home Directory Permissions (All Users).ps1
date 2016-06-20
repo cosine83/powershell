@@ -13,6 +13,6 @@ foreach ($user in $users) {
 	Set-NTFSOwner -Path $HDrive -Account $Admin
 	Disable-NTFSAccessInheritance -Path $HDrive -RemoveInheritedAccessRules
 	Get-NTFSAccess -Path $HDrive | Remove-NTFSAccess
-	Add-NTFSAccess -Path $HDrive -Account PEPPERMILLCAS\$user, $Admin, $Dadmins, $Sys -AccessRights FullControl
+	Add-NTFSAccess -Path $HDrive -Account DOMAIN\$user, $Admin, $Dadmins, $Sys -AccessRights FullControl
 	Write-Host -Foreground Yellow -Background Black "Changed H drive permissions for $user"
 }
