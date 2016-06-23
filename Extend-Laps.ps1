@@ -3,22 +3,19 @@
 Generates, stores, and gets randomly generated passwords for AD computers. This would be supplemental to Microsoft's LAPS since it can only manage one local admin account.
 
 .DESCRIPTION
-This set of functions will use a .NET assemply to generate a password with a minimum of 15 characters, store it in a computer's AD object extensionAttribute1. This is supplemental to Microsoft's LAPS since it can only manage one local admin account.
+This set of functions will use a .NET assemply to generate a password of 30 characters, store it in a computer's AD object extensionAttribute1. This is supplemental to Microsoft's LAPS since it can only manage one local admin account.
 
 .NOTES
 Name: Extend-Laps
 Author: Justin Grathwohl
-Version: 1.1
-DateUpdated:2016-03-21
+Version: 1.2
+DateUpdated:2016-06-23
 
 .PARAMETER ComputerName
 The name of the AD-joined computer
 
-.PARAMETER Length
-The desired length of the password generated
-
 .EXAMPLE
-Store-AdmPassword -ComputerName test01 -Length 30
+Store-AdmPassword -ComputerName test01
 
 .Description
 Creates and stores a 30 character, randomly generated password for AD-joined computer test01
