@@ -1,7 +1,10 @@
 Import-Module ActiveDirectory
 Import-Module NTFSSecurity
 
+$ErrorActionPreference = "SilentlyContinue"
+
 $query = Get-ADUser -Filter {Enabled -eq $true} | Sort SamAccountName
+#$query = Get-ADGroupMember "Group"
 $users = $query.SamAccountName
 $Admin = "BUILTIN\Administrators"
 $Dadmins = "DOMAIN\Domain Admins"
