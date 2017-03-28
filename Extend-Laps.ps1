@@ -27,7 +27,7 @@ Get-AdmPassword -ComputerName test01
 Outputs the computer and the password set in extensionAttribute1
 
 .EXAMPLE
-Set-SecureAdmPassword -ComputerName test01
+Set-AdmPassword -ComputerName test01
 
 .Description
 Reads the AD stored password and sets it on the built-in local administrator account and removes the user flag so the passsword is able to expire. Can change BXOR to BOR to make it not expire.
