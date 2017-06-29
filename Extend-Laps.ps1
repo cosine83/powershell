@@ -64,7 +64,7 @@ Function Set-AdmPassword() {
 	$StoredPwd = Get-ADComputer -Identity $ComputerName -Properties extensionAttribute1
 	$AdmPwd = ConvertTo-SecureString $StoredPwd.extensionAttribute1 -AsPlainText -Force
 	$Password = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($AdmPwd))
-	$BuiltinAdmin = [adsi]"WinNT://$ComputerName/Administrator,user"
+	$BuiltinAdmin = [adsi]"WinNT://$ComputerName/Administrator,user" #Change Username to which ever local user account you wish
 	$BuiltinAdmin.SetPassword($Password)
 	$BuiltinAdmin.SetInfo()
 	$BuiltinAdmin.InvokeSet("UserFlags",($BuiltinAdmin.UserFlags[0] -BXOR 65536))
