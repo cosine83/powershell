@@ -5,7 +5,7 @@
 $SYSTEMROOT = [System.Environment]::ExpandEnvironmentVariables("%SYSTEMROOT%")
 $USERPROFILE = [System.Environment]::ExpandEnvironmentVariables("%USERPROFILE%")
 $LOCALAPPDATA = [System.Environment]::ExpandEnvironmentVariables("%LOCALAPPDATA%")
-$PROGRAMDATA = [System.Environment]::ExpandEnvironmentVariables("%SPROGRAMDATA%")
+$PROGRAMDATA = [System.Environment]::ExpandEnvironmentVariables("%PROGRAMDATA%")
 
 $Confirm = Read-Host "Have you checked the script to validate you will not lose anything you want to keep? [y`/n]"
 
