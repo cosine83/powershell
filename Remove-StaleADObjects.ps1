@@ -48,7 +48,7 @@ $removeStale = Read-Host "Would you like to remove stale AD objects? (y`/n)"
 
 If ($removeStale -eq y) {
 	$rcompLogon = Get-ADComputer -Properties Name,DistinguishedName,LastLogon,ObjectGUID -Filter {Endabled -eq $false} -SearchBase $inactiveCompsOU | Where {[datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select Name,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
-	$ruserLogon = Get-ADUser -Filter {Enabled -eq $false} -Properties DisplayName,DistinguishedName,LastLogon,ObjectGUID | Where {$_.DistinguishedName -like "*OU=Users,*" -and $_.DistinguishedName -notlike "*OU=Users,OU=Generic*" -and [datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select DisplayName,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
+	$ruserLogon = Get-ADUser -Filter {Enabled -eq $false} -Properties DisplayName,DistinguishedName,LastLogon,ObjectGUID -SearchBase $inactiveUsersOU | Where {$_.DistinguishedName -like "*OU=Users,*" -and $_.DistinguishedName -notlike "*OU=Users,OU=Generic*" -and [datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select DisplayName,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
 	
 	ForEach ($rcomputer in $rcompLogon) {	
 		$rctimeSpan = (New-TimeSpan -Start $rcomputer.LastLogon -End $todayDate).Days
