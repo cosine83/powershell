@@ -28,7 +28,7 @@ ForEach ($user in $userLogon) {
 		Write-Host -Foreground Yellow -Background Black $user.DisplayName "disabled and moved"
 	}
 	Else {
-		Write-Host -Foreground Yellow -Background Black $User.DisplayName "has logged in within the last 90 days"
+		Write-Host -Foreground Yellow -Background Black $user.DisplayName "has logged in within the last 90 days"
 	}
 }
 
