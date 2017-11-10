@@ -13,6 +13,9 @@ ForEach ($computer in $compLogon) {
 		Move-ADObject -Identity $computer.ObjectGUID -TargetPath $InactiveCompsOU
 		Write-Host -Foreground Yellow -Background Black $computer.Name "disabled and moved"
 	}
+	Else {
+		Write-Host -Foreground Yellow -Background Black $computer.Name "has logged in within the last 90 days"
+	}
 }
 
 Write-Host -Foreground Yellow -Background Black "Beginning user search..."
@@ -23,6 +26,9 @@ ForEach ($user in $userLogon) {
 		Set-ADUser $user -Enabled $false
 		Move-ADObject -Identity $user.ObjectGUID -TargetPath $InactiveUsersOU
 		Write-Host -Foreground Yellow -Background Black $user.DisplayName "disabled and moved"
+	}
+	Else {
+		Write-Host -Foreground Yellow -Background Black $User.DisplayName "has logged in within the last 90 days"
 	}
 }
 
