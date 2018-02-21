@@ -1,20 +1,21 @@
 $inactiveCompsOU = "OU=computers,OU=decom,DC=domain,DC=com"
 $inactiveUsersOU = "OU=users,OU=decom,DC=domain,DC=com"
 $todayDate = Get-Date
-$compLogon = Get-ADComputer -Properties Name,DistinguishedName,LastLogon,ObjectGUID -Filter {Endabled -eq $true} | Where {[datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select Name,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
-$userLogon = Get-ADUser -Filter {Enabled -eq $true} -Properties DisplayName,DistinguishedName,LastLogon,ObjectGUID | Where {$_.DistinguishedName -like "*OU=Users,*" -and $_.DistinguishedName -notlike "*OU=Users,OU=Generic*" -and [datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select DisplayName,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
+$compLogon = Get-ADComputer -Properties Name,DistinguishedName,LastLogon,ObjectGUID -Filter {Enabled -eq $true} | Where {[datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select Name,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
+$userLogon = Get-ADUser -Filter {Enabled -eq $true} -Properties DisplayName,DistinguishedName,LastLogon,ObjectGUID | Where {$_.DistinguishedName -like "*OU=that,*" -and $_.DistinguishedName -notlike "*OU=notthat*" -and [datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select DisplayName,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
 
 Write-Host -Foreground Yellow -Background Black "Beginning computer search..."
 ForEach ($computer in $compLogon) {
+	$pingComp = Test-Connection $computer.Name -count 1 -quiet
 	$ctimeSpan = (New-TimeSpan -Start $computer.LastLogon -End $todayDate).Days
-	If ($ctimeSpan -ge 90) {
+	If ($ctimeSpan -ge 90 -and $pingComp -eq $false) {
 		Set-ADComputer $computer -Location $computer.LastLogon
 		Set-ADComputer $computer -Enabled $false
 		Move-ADObject -Identity $computer.ObjectGUID -TargetPath $InactiveCompsOU
 		Write-Host -Foreground Yellow -Background Black $computer.Name "disabled and moved"
 	}
 	Else {
-		Write-Host -Foreground Yellow -Background Black $computer.Name "has logged in within the last 90 days"
+		Write-Host -Foreground Yellow -Background Black $computer.Name "pings but may need a reboot due to last reported domain logon"
 	}
 }
 
@@ -28,7 +29,7 @@ ForEach ($user in $userLogon) {
 		Write-Host -Foreground Yellow -Background Black $user.DisplayName "disabled and moved"
 	}
 	Else {
-		Write-Host -Foreground Yellow -Background Black $user.DisplayName "has logged in within the last 90 days"
+		Write-Host -Foreground Yellow -Background Black $User.DisplayName "has logged in within the last 90 days"
 	}
 }
 
@@ -54,7 +55,7 @@ $removeStale = Read-Host "Would you like to remove stale AD objects? (y`/n)"
 
 If ($removeStale -eq y) {
 	$rcompLogon = Get-ADComputer -Properties Name,DistinguishedName,LastLogon,ObjectGUID -Filter {Endabled -eq $false} -SearchBase $inactiveCompsOU | Where {[datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select Name,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
-	$ruserLogon = Get-ADUser -Filter {Enabled -eq $false} -Properties DisplayName,DistinguishedName,LastLogon,ObjectGUID -SearchBase $inactiveUsersOU | Where {$_.DistinguishedName -like "*OU=Users,*" -and $_.DistinguishedName -notlike "*OU=Users,OU=Generic*" -and [datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select DisplayName,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
+	$ruserLogon = Get-ADUser -Filter {Enabled -eq $false} -Properties DisplayName,DistinguishedName,LastLogon,ObjectGUID -SearchBase $inactiveUsersOU | Where {$_.DistinguishedName -like "*OU=that,*" -and $_.DistinguishedName -notlike "*OU=notthat*" -and [datetime]::FromFileTime($_.LastLogon) -ne "12/31/1600 4:00:00 PM"} | Select DisplayName,DistinguishedName,ObjectGUID,@{Name="LastLogon";Expression={[datetime]::FromFileTime($_.LastLogon)}}
 	
 	ForEach ($rcomputer in $rcompLogon) {	
 		$rctimeSpan = (New-TimeSpan -Start $rcomputer.LastLogon -End $todayDate).Days
