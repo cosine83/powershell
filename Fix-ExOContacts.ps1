@@ -12,7 +12,7 @@ $userName = $user.Name
 		Set-ADUser $user -Add @{targetAddress="SMTP:$mailAddress"}
 	}
 	Catch {
-		Write-Host "$userName already has targetAddress set"
+		Write-Host "$userName already has targetAddress set, check for Exchange Online mailbox"
 	}
 }
 
