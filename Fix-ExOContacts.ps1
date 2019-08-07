@@ -7,11 +7,12 @@ $qUsers = Get-AdUser -Filter {Enabled -eq $true} -Properties mail
 
 ForEach ($user in $qUsers) {
 $mailAddress = $user.mail
+$userName = $user.Name
 	Try {
 		Set-ADUser $user -Add @{targetAddress="SMTP:$mailAddress"}
 	}
 	Catch {
-		Write-Host "$mailAddress already has targetAddress set"
+		Write-Host "$userName already has targetAddress set"
 	}
 }
 
