@@ -3,17 +3,13 @@
 Gets and sets the picture for a user's AD and Outlook profile
 
 .DESCRIPTION
-This will get and set the AD and Outlook picture of the defined user. Pictures need to be 96x96 in JPEG format. Higher resolution pictures will be cropped and resized to square and results won't always be optimal. 
-This requires the AD PowerShell module and either the Exchange 2010/2013 management tools to be installed locally or a remote session loaded to an Exchange server.
-
-$session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://ExchangeServer/PowerShell -Authentication Kerberos -AllowClobber
-Import-PSSession $session
+This will get and set the AD and Outlook picture of the defined user. Pictures need to be 96x96 in JPEG format. Higher resolution pictures will be cropped and resized to square and results won't always be optimal.
 
 .NOTES
 Name: Set-ADPicture
 Author: Justin Grathwohl
-Version: 1.0
-DateUpdated:2016-06-23
+Version: 1.1
+DateUpdated:2022-01-10
 
 .PARAMETER User
 The name of the AD user.
@@ -44,9 +40,8 @@ Function Get-ADProfilePicture() {
 	Param(
 	[Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
 		[Microsoft.ActiveDirectory.Management.ADUser]$User
-		
 	)
-	Get-ADUser $User -Properties thumbnailPhoto | Select @{Name="User";Expression={$_.Name}}, @{Name="Photo";Expression={$_.thumbnailPhoto}}
+	Get-ADUser $User -Properties thumbnailPhoto | Select-Object @{Name="User";Expression={$_.Name}}, @{Name="Photo";Expression={$_.thumbnailPhoto}}
 }
 
 Function Set-ADProfilePicture() {
@@ -56,7 +51,7 @@ Function Set-ADProfilePicture() {
 		[Parameter(Mandatory=$true,Position=1)]
 		[String]$Path
 	)
-	$Photo = ([Byte[]] $(Get-Content -Path $Path -Encoding Byte -ReadCount 0))
+	$Photo = ([Byte[]] $(Get-Content -Path $Path -AsByteStream -ReadCount 0))
 	Set-ADUser $User -Replace @{thumbnailPhoto=$photo}
 }
 
@@ -67,5 +62,5 @@ Function Set-OutlookPicture() {
 		[Parameter(Mandatory=$true,Position=1)]
 		[String]$Path
 	)
-	Import-RecipientDataProperty -Identity $User -Picture -FileData ([Byte[]] $(Get-Content -Path $Path -Encoding Byte -ReadCount 0))
+	Import-RecipientDataProperty -Identity $User -Picture -FileData ([Byte[]] $(Get-Content -Path $Path -AsByteStream -ReadCount 0))
 }
