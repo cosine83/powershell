@@ -8,7 +8,7 @@ Import-Module activedirectory
 $searchbase = "OU=Tertiary,OU=Secondary,OU=Top,DC=domain,DC=com"
 
 #Get the list of computers to clean
-$query = Get-ADComputer -Filter * -SearchBase $searchbase | Select Name | Sort Name
+$query = Get-ADComputer -Filter * -SearchBase $searchbase | Select-Object Name | Sort-Object Name
 $computers = $query.Name
 
 
@@ -19,7 +19,7 @@ $computers = $query.Name
 $exepath = "C:\Windows\System32"
 set-alias blackpos "$exepath\black_pos_check.exe"
 
-md -Path "C:\BlackPOS Log" -force
+New-Item -Path "C:\BlackPOS Log" -force
 
 foreach ($computer in $computers)
 {
