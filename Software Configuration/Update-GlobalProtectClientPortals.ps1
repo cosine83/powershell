@@ -18,35 +18,35 @@ results in the keys being written to HKU and not applied to the user. The HKLM k
 
 $machineSettingsRegPath = "HKLM:\SOFTWARE\Palo Alto Networks\GlobalProtect\Settings"
 $userSettingsRegPath = "HKCU:\SOFTWARE\Palo Alto Networks\GlobalProtect\Settings"
-$bajaPortalUserPathTest = "$userSettingsRegPath\vpn.domain.com"
-$moabPortalUserPathTest = "$userSettingsregPath\vpn2.domain.com"
-$renoPortalUserPathTest = "$userSettingsregPath\vpn3.domain.com"
-$bajaPortalMachinePathTest = "$machineSettingsRegPath\vpn.domain.com"
-$moabPortalMachinePathTest = "$machineSettingsregPath\vpn2.domain.com"
-$renoPortalMachinePathTest = "$machineSettingsregPath\vpn3.domain.com"
+$PortalAUserPathTest = "$userSettingsRegPath\vpn.domain.com"
+$PortalBUserPathTest = "$userSettingsregPath\vpn2.domain.com"
+$PortalCUserPathTest = "$userSettingsregPath\vpn3.domain.com"
+$PortalAMachinePathTest = "$machineSettingsRegPath\vpn.domain.com"
+$PortalBMachinePathTest = "$machineSettingsregPath\vpn2.domain.com"
+$PortalCMachinePathTest = "$machineSettingsregPath\vpn3.domain.com"
 
-If(!(Test-Path $bajaPortalUserPathTest)) {
-    New-Item $bajaPortalUserPathTest -Force
+If(!(Test-Path $PortalAUserPathTest)) {
+    New-Item $PortalAUserPathTest -Force
 }
 
-If(!(Test-Path $moabPortalUserPathTest)) {
-    New-Item $moabPortalUserPathTest -Force
+If(!(Test-Path $PortalBUserPathTest)) {
+    New-Item $PortalBUserPathTest -Force
 }
 
-If(Test-Path $renoPortalUserPathTest) {
-    Remove-Item $renoPortalUserPathTest -Force
+If(Test-Path $PortalCUserPathTest) {
+    Remove-Item $PortalCUserPathTest -Force
 }
 
-If(!(Test-Path $bajaPortalMachinePathTest)) {
-    New-Item $bajaPortalMachinePathTest -Force
+If(!(Test-Path $PortalAMachinePathTest)) {
+    New-Item $PortalAMachinePathTest -Force
 }
 
-If(!(Test-Path $moabPortalMachinePathTest)) {
-    New-Item $moabPortalMachinePathTest -Force
+If(!(Test-Path $PortalBMachinePathTest)) {
+    New-Item $PortalBMachinePathTest -Force
 }
 
-If(Test-Path $renoPortalMachinePathTest) {
-    Remove-Item $renoPortalMachinePathTest -Force
+If(Test-Path $PortalCMachinePathTest) {
+    Remove-Item $PortalCMachinePathTest -Force
 }
 
 $testUserPanSettings = Get-ItemProperty "$userSettingsRegPath"
