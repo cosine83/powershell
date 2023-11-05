@@ -51,7 +51,7 @@ TD {border-width: 1px; padding: 3px; border-style: solid; border-color: black;}
 "@
 
 #Program File Path
-$DirPath = "C:\Scripts\Get-FileServerReport"
+$DirPath = "C:\Scripts\Get-FileServerUsage"
 
 #Check if program dir is present
 $DirPathCheck = Test-Path -Path $DirPath
@@ -90,7 +90,7 @@ ForEach ($folder in $outDirsRDrive) {
 }
 
 $csvDate = Get-Date -Format yyyyMMddTHHmmssffff
-$outDirsDataSet | Sort-Object Path | Format-Table -Wrap -AutoSize | Out-File $DirPath\RDrive-DataSet-$csvDate.txt
+$outDirsDataSet | Sort-Object Path | Format-Table -Wrap -AutoSize | Out-File $DirPath\ShareDrive-DataSet-$csvDate.txt
 $emailDataSet = $outDirsDataSet | Sort-Object Path | Format-Table -Wrap -AutoSize | ConvertTo-Html -Head $emailTableStyle
 $emailSubjectUser = "Share Drive Data Set Report"
 $emailBodyUser = @"
@@ -127,7 +127,7 @@ $emailBodyUser = @"
 "@
 Write-Output "Sending E-mail to $emailToaddress..."
 Try {
-    Send-MailMessage -To $emailToaddress -From $emailFrom -Subject $emailSubjectUser -Body $emailBodyUser -Attachments $DirPath\Removed-Users-$csvDate.csv -SmtpServer $emailSmtpServer -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -BodyAsHtml
+    Send-MailMessage -To $emailToaddress -From $emailFrom -Subject $emailSubjectUser -Body $emailBodyUser -Attachments $DirPath\ShareDrive-DataSet-$csvDate.txt -SmtpServer $emailSmtpServer -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -BodyAsHtml
 } Catch {
     Write-Output "Unable to send e-mail"
 }
