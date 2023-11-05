@@ -116,7 +116,7 @@ $emailBodyUser = @"
                 <li>Size - The size of the entire folder in gigabytes</li>
                 <li>Files Written in Last 180 Days - Total files written to the folder in the last 180 days</li>
                 <li>Recommended action - Import text file into Google Sheets and tell it to not auto-convert fields</li>
-                <li>Formatted text output is attached or can be found on $ENV:COMPUTERNAME at this path $DirPath\RDrive-DataSet-$csvDate.txt</li>
+                <li>Formatted text output is attached or can be found on $ENV:COMPUTERNAME at this path $DirPath\ShareDrive-DataSet-$csvDate.txt</li>
             </ul>
             <br><br>
             Thank you,
