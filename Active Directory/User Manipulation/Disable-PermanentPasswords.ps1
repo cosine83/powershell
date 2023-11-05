@@ -9,8 +9,8 @@ The purpose of this script is to look through AD user accounts flagged to never 
 
 .NOTES
 Created By: Justin Grathwohl
-Date Created:
-Date Updated:
+Date Created: 2016
+Date Updated: 2023
 
 #>
 
