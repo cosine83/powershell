@@ -1,3 +1,17 @@
+<#
+.PURPOSE
+
+.LINKS
+
+.TODO
+
+.NOTES
+Created By: Justin Grathwohl
+Date Created:
+Date Updated:
+
+#>
+
 $localUsers = Get-LocalUser
 
 If($localUsers.Name -ccontains "Administrator") {
