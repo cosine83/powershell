@@ -47,14 +47,15 @@ function Get-ADComputerSite {
 $getADModule = Get-Module -ListAvailable | Where-Object {$_.Name -eq "ActiveDirectory"}
 If (!$getADModule){
     $compAdSite = Get-ADComputerSite
-    $compAdSite | Out-File -FilePath $tempPath\ad_site.txt -Force
+    $compAdSite | Out-File -FilePath $dirPath\ad_site.txt -Force
 } Elseif ($getADModule){
     $getCompAdSite = Get-ADReplicationSite -Properties Name
     $compAdSite = $getCompAdSite.Name
-    $compAdSite | Out-File -FilePath $tempPath\ad_site.txt -Force
+    $compAdSite | Out-File -FilePath $dirPath\ad_site.txt -Force
 }
 
-$adSite = Get-Content C:\temp\ad_site.txt
+$adSite = Get-Content "C:\Scripts\Add-ADSitePrinters\ad_site.txt"
+$siteFileCheck = Test-Path "C:\Scripts\Add-ADSitePrinters\ad_site.txt"
 
 Switch ($compAdSite) {
     "Site 1" { $printServer = Get-Printer -ComputerName "server1.domain.com" | Where-Object {$_.Name -notlike "*OLD" -and $_.Name -notlike "*Zebra*" -and $_.Published -eq $true} }
@@ -76,6 +77,9 @@ If ($adSite -notmatch $compAdSite) {
     }
     Write-Output "Unmapped`: $($getNonLocalPrinters.Name)"
     $getNonLocalPrinters | Remove-Printer
+} Elseif (!$adSite -or $siteFileCheck) {
+    Write-Output "The text file to compare the current AD site to previous AD site does not exist, no printers removed or mapped."
+    Continue
 }
 
 Write-Output "Adding any unmapped local campus printers"
