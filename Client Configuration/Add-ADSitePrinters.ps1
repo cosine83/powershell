@@ -1,6 +1,6 @@
 <#
 .PURPOSE
-This script adds and removes the user's mapped printers based on their AD site. This can be detected at startup, logon, or periodically depending on how
+AD module optional. This script adds and removes the user's mapped printers based on their AD site. This can be detected at startup, logon, or periodically depending on how
 this script is setup for usage - scheduled task, startup item via GPO, etc.
 
 .LINKS
@@ -77,8 +77,8 @@ If ($adSite -notmatch $compAdSite) {
     }
     Write-Output "Unmapped`: $($getNonLocalPrinters.Name)"
     $getNonLocalPrinters | Remove-Printer
-} Elseif (!$adSite -or $siteFileCheck) {
-    Write-Output "The text file to compare the current AD site to previous AD site does not exist, no printers removed or mapped."
+} Elseif (!$adSite -or !$siteFileCheck) {
+    Write-Output "The text file to compare the current AD site to previous AD site does not exist, no printers removed."
     Continue
 }
 

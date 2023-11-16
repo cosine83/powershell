@@ -29,9 +29,9 @@ If ($wuPathcheck) {
     New-ItemProperty -Path $wuPath -Name "SetAutoRestartNotificationConfig" -Value 1 -Confirm:$false -Force
     New-ItemProperty -Path $wuPath -Name "SetDisablePauseUXAccess" -Value 1 -Confirm:$false -Force
     New-ItemProperty -Path $wuPath -Name "SetRestartWarningSchd" -Value 1 -Confirm:$false -Force
-    New-ItemProperty -Path $wuPath -Name "ProductVersion" -Value "Windows 11" -Confirm:$false -Force
+    New-ItemProperty -Path $wuPath -Name "ProductVersion" -Value "Windows 10" -Confirm:$false -Force
     New-ItemProperty -Path $wuPath -Name "TargetReleaseVersion" -Value "1" -Confirm:$false -PropertyType DWord -Force
-    New-ItemProperty -Path $wuPath -Name "TargetReleaseVersionInfo" -Value "22H2" -Confirm:$false -Force
+    New-ItemProperty -Path $wuPath -Name "TargetReleaseVersionInfo" -Value "21H2" -Confirm:$false -Force
     $wuAuPathcheck = Test-Path -Path $wuauPath
     If ($wuauPathCheck) {
         New-ItemProperty -Path $wuauPath -Name "AlwaysAutoRebootAtScheduledTime" -Value 1 -Confirm:$false -Force
