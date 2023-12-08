@@ -1,7 +1,14 @@
 <#
 .PURPOSE
-AD module optional. This script adds and removes the user's mapped printers based on their AD site. This can be detected at startup, logon, or periodically depending on how
-this script is setup for usage - scheduled task, startup item via GPO, etc.
+AD module optional. This script adds and removes the user's mapped printers based on their Active Directory site. This can be detected at startup, logon, or periodically depending on how
+this script is setup for usage - scheduled task, startup item via GPO, etc. Modify to how many sites you have, will need extra tweaking for single AD site.
+
+
+.REQUIREMENTS
+- Printers added to print server(s)
+- Printers published to Active Directory
+- Active Directory sites setup and domain controllers associated
+- Active Directory subnets added and associated with their respctive sites
 
 .LINKS
 
@@ -10,7 +17,7 @@ this script is setup for usage - scheduled task, startup item via GPO, etc.
 .NOTES
 Created By: Justin Grathwohl
 Date Created: 04-21-2022
-Date Updated: 11-09-2023
+Date Updated: 11-16-2023
 
 #>
 
