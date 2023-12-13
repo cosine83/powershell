@@ -1,29 +1,29 @@
-$getAdComputers = Get-ADComputer -Filter {OperatingSystem -NotLike "*Server*"} -Properties *
+$getAdComputers = Get-ADComputer -Filter {OperatingSystem -NotLike "*Server*"} -Properties * | Sort-Object Name
 forEach ($adComputer in $getAdComputers) {
-    $pingAdComputer = Test-Connection -TargetName $adComputer -Count 1 -Quiet
-    $testWsMan = Test-WSMan -ComputerName $adComputer
+    $pingAdComputer = Test-Connection -TargetName $adComputer.Name -Count 1 -Quiet
+    $testWsMan = Test-WSMan -ComputerName $adComputer.Name
     If ($pingAdComputer) {
         If ($testWsMan){
             $getChassisType = Get-CimInstance Win32_SystemEnclosure -ComputerName $adComputer.Name | Select-Object -ExpandProperty ChassisTypes
             If ('3', '4', '5', '6', '7', '15', '16', '34', '35', '36' -eq $getChassisType) {
                 Write-Output $($adComputer).Name "is a desktop chassis type"
                 $adComputer | Select-Object Name,DistinguishedName,OperatingSystem,OperatingSystemVersion,@{N="ChassisType";E={$getChassisType}} | Export-Csv -Append -NoTypeInformation "C:\temp\desktopChassisComputers.csv"
-                #Add-ADGroupMember -Identity "Desktops" -Members $adComputer
+                Add-ADGroupMember -Identity "Desktops" -Members $adComputer -WhatIf
             }
             Elseif ('8', '9', '10', '11', '12', '14', '18', '21', '31', '32' -eq $getChassisType) {
                 Write-Output $($adComputer).Name "is a laptop chassis type"
                 $adComputer | Select-Object Name,DistinguishedName,OperatingSystem,OperatingSystemVersion,@{N="ChassisType";E={$getChassisType}} | Export-Csv -Append -NoTypeInformation "C:\temp\laptopChassisComputers.csv"
-                #Add-ADGroupMember -Identity "Laptops" -Members $adComputer
+                Add-ADGroupMember -Identity "Laptops" -Members $adComputer -WhatIf
             }
             Elseif ('17', '23' -eq $getChassisType) {
                 Write-Output $($adComputer).Name "is a server chassis type"
                 $adComputer | Select-Object Name,DistinguishedName,OperatingSystem,OperatingSystemVersion,@{N="ChassisType";E={$getChassisType}} | Export-Csv -Append -NoTypeInformation "C:\temp\serverChassisComputers.csv"
-                #Add-ADGroupMember -Identity "Servers" -Members $adComputer
+                Add-ADGroupMember -Identity "Servers" -Members $adComputer -WhatIf
             }
             Elseif ('0', '1', '2', $null -eq $getChassisType) {
                 Write-Output $($adComputer).Name "is an unknown chassis type"
                 $adComputer | Select-Object Name,DistinguishedName,OperatingSystem,OperatingSystemVersion,@{N="ChassisType"; E={$getChassisType}} | Export-Csv -Append -NoTypeInformation "C:\temp\unknownChassisComputers.csv"
-                #Add-ADGroupMember -Identity "Unknown Chassis" -Members $adComputer
+                Add-ADGroupMember -Identity "Unknown Chassis" -Members $adComputer -WhatIf
             }
         }
         Else {
