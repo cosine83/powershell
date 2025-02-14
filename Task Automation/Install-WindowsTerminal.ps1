@@ -41,7 +41,7 @@ If($getWinVer -like "Windows 10*") {
     Expand-Archive -Path "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit.zip" -DestinationPath "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit" -Force
     $getWinTermDeps = Get-ChildItem -Path "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit" | Where-Object {$_.Name -like "*x64*.appx" -or $_.Extension -is "msixbundle"}
     ForEach ($appPackage in $getWinTermDeps) {
-        Add-AppxPackage -Path "$appPackage.FullName"
+        Add-AppxPackage -Path "$appPackage"
     }
     # Add-AppxPackage -Path "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit\Microsoft.UI.Xaml.2.8_8.2501.31001.0_x64__8wekyb3d8bbwe.appx"
 } Else {
@@ -49,7 +49,7 @@ If($getWinVer -like "Windows 10*") {
     Expand-Archive -Path "$env:TEMP\DesktopAppInstaller_Dependencies.zip" -DestinationPath "$env:TEMP\DesktopInstaller_Dependencies" -Force
     $getWingetDeps = Get-ChildItem -Path "$env:TEMP\DesktopInstaller_Dependencies\x64" | Where-Object {$_.Name -like "*x64*.appx" -or $_.Extension -is "msixbundle"}
     ForEach ($appPackage in $getWingetDeps) {
-        Add-AppxPackage -Path "$appPackage.FullName"
+        Add-AppxPackage -Path "$appPackage"
     }
     # Add-AppxPackage -Path "$env:TEMP\DesktopInstaller_Dependencies\x64\Microsoft.VCLibs.140.00.UWPDesktop_14.0.33728.0_x64.appx"
     # Add-AppxPackage -Path "$env:TEMP\DesktopInstaller_Dependencies\x64\Microsoft.UI.Xaml.2.8_8.2310.30001.0_x64.appx"
