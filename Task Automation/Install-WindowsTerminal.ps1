@@ -39,7 +39,7 @@ $getWinVer = (Get-ComputerInfo).WindowsProductName
 If($getWinVer -like "Windows 10*") {
     Invoke-WebRequest -Uri "https://github.com/microsoft/terminal/releases/download/v$($winGetVer)/Microsoft.WindowsTerminal_1.22.10352.0_8wekyb3d8bbwe.msixbundle_Windows10_PreinstallKit.zip" -Method Get -OutFile "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit.zip"
     Expand-Archive -Path "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit.zip" -DestinationPath "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit" -Force
-    $getWinTermDeps = Get-ChildItem -Path "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit" -Filter *.appx, *.msixbundle
+    $getWinTermDeps = Get-ChildItem -Path "$env:TEMP\WindowsTerminal_Windows10_PreinstallKit" | Where-Object {$_.Name -like "*x64*.appx" -or $_.Extension -is "msixbundle"}
     ForEach ($appPackage in $getWinTermDeps) {
         Add-AppxPackage -Path "$appPackage.FullName"
     }
@@ -47,7 +47,7 @@ If($getWinVer -like "Windows 10*") {
 } Else {
     Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v$($winGetVer)/DesktopAppInstaller_Dependencies.zip" -Method Get -OutFile "$env:TEMP\DesktopAppInstaller_Dependencies.zip"
     Expand-Archive -Path "$env:TEMP\DesktopAppInstaller_Dependencies.zip" -DestinationPath "$env:TEMP\DesktopInstaller_Dependencies" -Force
-    $getWingetDeps = Get-ChildItem -Path "$env:TEMP\DesktopInstaller_Dependencies\x64" -Filter *.appx, *.msixbundle
+    $getWingetDeps = Get-ChildItem -Path "$env:TEMP\DesktopInstaller_Dependencies\x64" | Where-Object {$_.Name -like "*x64*.appx" -or $_.Extension -is "msixbundle"}
     ForEach ($appPackage in $getWingetDeps) {
         Add-AppxPackage -Path "$appPackage.FullName"
     }
