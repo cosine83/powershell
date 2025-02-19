@@ -7,7 +7,7 @@ Cleans out well-known directories, backs up IIS, Windows, and Event Viewer logs,
 
 .USAGE
 You can add additional folders to clean out in the $cleanupFolders array, simply follow the existing syntax.
-I've added and enabled all CleanMgr options that currently exist as of Windows 11 24H2. Comment out the ones you don't want to cleanup. The commented out ones are for legacy systems or are valid only when certain system options are enabled.
+All CleanMgr options have been added and enabled that currently exist as of Windows 11 24H2. Comment out the ones you don't want to cleanup. The commented out ones are for legacy systems or are valid only when certain system options are enabled.
 
 .NOTES
 Author: Justin Grathwohl
