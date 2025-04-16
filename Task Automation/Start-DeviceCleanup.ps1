@@ -6,13 +6,13 @@ Start-DeviceCleanup.ps1
 Cleans out well-known directories, backs up IIS, Windows, and Event Viewer logs, and leverages CleanMgr, SFC, and DISM for deep cleaning and image repair.
 
 .USAGE
-You can add additional folders to clean out in the $cleanupFolders array, simply follow the existing syntax.
-All CleanMgr options have been added and enabled that currently exist as of Windows 11 24H2. Comment out the ones you don't want to cleanup. The commented out ones are for legacy systems or are valid only when certain system options are enabled. Errors can safely be ignored.
+You add additional folders to clean out in the $cleanupFolders array, simply follow the existing syntax.
+All CleanMgr options have been added and enabled that currently exist as of Windows 11 24H2. Comment out the ones you don't want to cleanup. The commented out ones are for legacy systems or are valid only when certain system options are enabled.
 
 .NOTES
 Author: Justin Grathwohl
-Date: 02/19/2025
-Version: 1.0
+Date: 04/16/2025
+Version: 1.1
 
 #>
 #Requires -Version 5.1
@@ -21,26 +21,33 @@ $ProgressPreference = "SilentlyContinue"
 
 #Logging directories
 $dirPath = "C:\ScriptLogging\Start-DeviceCleanup"
-$rotatePath = "C:\ScriptLogging\Start-DeviceCleanup\backups"
+$logBackupPath = "C:\ScriptLogging\Start-DeviceCleanup\backups"
 
 #Check if logging directory is present
 $dirPathCheck = Test-Path -Path $dirPath
-$rotatePathCheck = Test-Path -Path $rotatePath
+$logBackupPathCheck = Test-Path -Path $logBackupPath
 
 #Create logging directory if it doesn't exist
 If (!($dirPathCheck)) {
     New-Item -ItemType Directory $dirPath -Force
 }
-If (!($rotatePathCheck)) {
-    New-Item -ItemType Directory $rotatePath -Force
+If (!($logBackupPathCheck)) {
+    New-Item -ItemType Directory $logBackupPath -Force
 }
 
 #Date formatting for logging outputs and queries
-$rotateDate = (Get-Date).AddDays(-30)
-$logDate = Get-Date -Format yyyyMMddTHHmmssffff
+$logRotateDate = (Get-Date).AddDays(-7)
+$backupRotateDate = (Get-Date).AddDays(-30)
+$logDate = Get-Date -Format ddMMyyyy
 
 Start-Transcript -Path $dirPath\Start-DeviceCleanup-$logDate.txt
+
 Write-Output "Script starting at $(Get-Date)"
+Write-Output "Cleaning up old script log files..."
+Get-ChildItem -Path $dirPath -Recurse -Filter *.txt | Where-Object {$_.LastWriteTime -le $backupRotateDate} | Remove-Item -Force
+Write-Output "Cleaning up old log backups..."
+Get-ChildItem -Path $logBackupPath -Recurse -Filter *.zip | Where-Object {$_.LastWriteTime -le $logRotateDate} | Remove-Item -Force
+Write-Output "Setting variables for CleanMgr, DISM, and SFC, and checking folders to cleanup..."
 
 # Create array for the folders to cleanup
 $cleanupFolders = @(
@@ -55,7 +62,6 @@ $cleanupFolders = @(
     "C:\Windows\System32\LogFiles",`
     "C:\inetpub\logs",`
     "C:\Windows\System32\winevt\Logs",`
-    "E:\Enterworks\logs"
 )
 
 # Create array for Cleanmgr registry keys
@@ -107,14 +113,12 @@ $testCleanupFoldersTable = @{
     "winSysLogs" = "C:\Windows\System32\LogFiles"
     "iisLogs" = "C:\inetpub\logs"
     "winEventLogs" = "C:\Windows\System32\winevt\Logs"
-    "pimLogs" = "E:\Enterworks\logs"
 }
 $testCleanupFolders += New-Object psobject -Property $testCleanupFoldersTable
 
 $winSysLogs = Test-Path $testCleanupFolders.winSysLogs
 $iisLogs = Test-Path $testCleanupFolders.iisLogs
 $winEventLogs = Test-Path $testCleanupFolders.winEventLogs
-$pimLogs = Test-Path $testCleanupFolders.pimLogs
 
 If($iisLogs) {
 	Get-ChildItem "$($testCleanupFolders.iisLogs)\*.log" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-IIS-$logDate.zip -Force -ErrorAction SilentlyContinue
@@ -131,17 +135,12 @@ If($winEventLogs) {
 	Write-Output "Windows Event logs compressed and backed up"
 }
 
-If ($checkPimServer -like "*pim*" -and $pimLogs) {
-	Get-ChildItem "$testCleanupFolders.pimLogs\*.log" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-pimLogs-$logDate.zip -Force -ErrorAction SilentlyContinue
-	Write-Output "PIM Enableserver logs compressed and backed up"
-}
-
 ForEach ($cleanupFolder in $cleanupFolders) {
     Get-ChildItem "$cleanupFolder\*" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 }
 Write-Output "All cleanup folders have been cleared."
 
-Write-Output "Using Windows Disk Cleanup to deep clean system files, Windows Update packages, and old Windows installations"
+Write-Output "Using Windows Disk Cleanup to deep clean system files"
 Write-Output "Setting up Windows Disk Cleanup automation settings"
 
 ForEach ($regKey in $cleanMgrRegKeys) {
