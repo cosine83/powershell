@@ -9,9 +9,12 @@ Cleans out well-known directories, backs up IIS, Windows, and Event Viewer logs,
 You can add additional folders to clean out in the $cleanupFolders array, simply follow the existing syntax.
 All CleanMgr options have been added and enabled that currently exist as of Windows 11 24H2. Comment out the ones you don't want to cleanup. The commented out ones are for legacy systems or are valid only when certain system options are enabled.
 
+.TODO
+- Cleanup old user profiles properly
+
 .NOTES
 Author: Justin Grathwohl
-Date: 04/16/2025
+Date: 05/08/2025
 Version: 1.1
 
 #>
@@ -41,13 +44,28 @@ $backupRotateDate = (Get-Date).AddDays(-30)
 $logDate = Get-Date -Format ddMMyyyy
 
 Start-Transcript -Path $dirPath\Start-DeviceCleanup-$logDate.txt
-
 Write-Output "Script starting at $(Get-Date)"
-Write-Output "Cleaning up old script log files..."
+Write-Output "Cleaning up old log files..."
 Get-ChildItem -Path $dirPath -Recurse -Filter *.txt | Where-Object {$_.LastWriteTime -le $backupRotateDate} | Remove-Item -Force
 Write-Output "Cleaning up old log backups..."
 Get-ChildItem -Path $logBackupPath -Recurse -Filter *.zip | Where-Object {$_.LastWriteTime -le $logRotateDate} | Remove-Item -Force
 Write-Output "Setting variables for CleanMgr, DISM, and SFC, and checking folders to cleanup..."
+
+<# # Create old profile cleanup flow
+$profileRegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\"
+$ignoredSIDs = @(
+    "S-1-5-18",`
+    "S-1-5-19",`
+    "S-1-5-20",`
+    "S-1-5-82"
+)
+
+$getUnloadedProfiles = Get-CimInstance -class Win32_UserProfile | Where-Object {(!$_.Special) -and (!$_.Loaded)} | Select-Object LocalPath,SID,LastUseTime
+$getProfilePathReg = Get-ChildItem -Path $profileRegPath
+ForEach ($userProfile in $getProfilePathReg) {
+    Remove-CimInstance
+    Remove-Item
+} #>
 
 # Create array for the folders to cleanup
 $cleanupFolders = @(
@@ -62,6 +80,7 @@ $cleanupFolders = @(
     "C:\Windows\System32\LogFiles",`
     "C:\inetpub\logs",`
     "C:\Windows\System32\winevt\Logs",`
+    "E:\Enterworks\logs"
 )
 
 # Create array for Cleanmgr registry keys
@@ -113,12 +132,14 @@ $testCleanupFoldersTable = @{
     "winSysLogs" = "C:\Windows\System32\LogFiles"
     "iisLogs" = "C:\inetpub\logs"
     "winEventLogs" = "C:\Windows\System32\winevt\Logs"
+    "pimLogs" = "E:\Enterworks\logs"
 }
 $testCleanupFolders += New-Object psobject -Property $testCleanupFoldersTable
 
 $winSysLogs = Test-Path $testCleanupFolders.winSysLogs
 $iisLogs = Test-Path $testCleanupFolders.iisLogs
 $winEventLogs = Test-Path $testCleanupFolders.winEventLogs
+$pimLogs = Test-Path $testCleanupFolders.pimLogs
 
 If($iisLogs) {
 	Get-ChildItem "$($testCleanupFolders.iisLogs)\*.log" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-IIS-$logDate.zip -Force -ErrorAction SilentlyContinue
@@ -135,12 +156,55 @@ If($winEventLogs) {
 	Write-Output "Windows Event logs compressed and backed up"
 }
 
+If ($checkPimServer -like "*pim*" -and $pimLogs) {
+	Get-ChildItem "$testCleanupFolders.pimLogs\*.log" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-pimLogs-$logDate.zip -Force -ErrorAction SilentlyContinue
+	Write-Output "PIM Enableserver logs compressed and backed up"
+}
+
+# WBEM Repository Cleanup to help with slow logon times and other WMI-related issues
+$wbemRepo = "C:\Windows\System32\wbem\Repository"
+$wbemRepoSize = (Get-ChildItem -Path $wbemRepo -Recurse -File | Measure-Object -Property Length -Sum).Sum
+$wbemRepoSizeMB = "{0:N2}" -f ($wbemRepoSize / 1MB)
+$checkWbemRepo = Invoke-Command -ScriptBlock { winmgmt /verifyrepository }
+# Validate output of the WBEM folder size checks and repository consistency.
+Switch -Wildcard ($wbemRepoSizeMB) {
+    {$wbemRepoSizeMB -ge 200.00 -and $checkWbemRepo -like "*is consistent"} {
+        Stop-Service Winmgmt -Force
+        Get-ChildItem $wbemRepo -Recurse -ErrorAction SilentlyContinue | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-wbemRepo-$logDate.zip -Force -ErrorAction SilentlyContinue
+        Invoke-Command -ScriptBlock {
+            winmgmt /resetrepository
+            winmgmt /verifyrepository
+        }
+        Write-Output "WBEM Repository is consistent but is larger than allowed size and has been reset."
+    }
+    {$wbemRepoSizeMB -le 199.99 -and $checkWbemRepo -like "*is consistent"} { Write-Output "WBEM Respository is consistent and below allowed size." }
+    {$wbemRepoSizeMB -ge 200.00 -and $checkWbemRepo -notlike "*is consistent"} {
+        Stop-Service Winmgmt -Force
+        Get-ChildItem $wbemRepo -Recurse -ErrorAction SilentlyContinue | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-wbemRepo-$logDate.zip -Force -ErrorAction SilentlyContinue
+        Invoke-Command -ScriptBlock {
+            winmgmt /resetrepository
+            winmgmt /verifyrepository
+        }
+        Write-Output "WBEM Repository has been reset due to inconsistencies and it is larger than allowed size."
+    }
+    {$wbemRepoSizeMB -le 199.99 -and $checkWbemRepo -notlike "*is consistent"} {
+        Stop-Service Winmgmt -Force
+        Get-ChildItem $wbemRepo -Recurse -ErrorAction SilentlyContinue | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-wbemRepo-$logDate.zip -Force -ErrorAction SilentlyContinue
+        Invoke-Command -ScriptBlock {
+            winmgmt /salvagerepository
+            winmgmt /verifyrepository
+        }
+        Write-Output "WBEM Repository has been reset due to inconsistencies but it was not larger than allowed size."
+    }
+}
+
+# Start folder cleanup
 ForEach ($cleanupFolder in $cleanupFolders) {
     Get-ChildItem "$cleanupFolder\*" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 }
 Write-Output "All cleanup folders have been cleared."
 
-Write-Output "Using Windows Disk Cleanup to deep clean system files"
+Write-Output "Using Windows Disk Cleanup to deep clean system files, Windows Update packages, and old Windows installations"
 Write-Output "Setting up Windows Disk Cleanup automation settings"
 
 ForEach ($regKey in $cleanMgrRegKeys) {
