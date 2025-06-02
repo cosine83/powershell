@@ -137,7 +137,6 @@ $testCleanupFolders += New-Object psobject -Property $testCleanupFoldersTable
 $winSysLogs = Test-Path $testCleanupFolders.winSysLogs
 $iisLogs = Test-Path $testCleanupFolders.iisLogs
 $winEventLogs = Test-Path $testCleanupFolders.winEventLogs
-$pimLogs = Test-Path $testCleanupFolders.pimLogs
 
 If($iisLogs) {
 	Get-ChildItem "$($testCleanupFolders.iisLogs)\*.log" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-IIS-$logDate.zip -Force -ErrorAction SilentlyContinue
