@@ -80,7 +80,6 @@ $cleanupFolders = @(
     "C:\Windows\System32\LogFiles",`
     "C:\inetpub\logs",`
     "C:\Windows\System32\winevt\Logs",`
-    "E:\Enterworks\logs"
 )
 
 # Create array for Cleanmgr registry keys
@@ -132,7 +131,6 @@ $testCleanupFoldersTable = @{
     "winSysLogs" = "C:\Windows\System32\LogFiles"
     "iisLogs" = "C:\inetpub\logs"
     "winEventLogs" = "C:\Windows\System32\winevt\Logs"
-    "pimLogs" = "E:\Enterworks\logs"
 }
 $testCleanupFolders += New-Object psobject -Property $testCleanupFoldersTable
 
@@ -154,11 +152,6 @@ If($winSysLogs) {
 If($winEventLogs) {
 	Get-ChildItem "$($testCleanupFolders.winEventLogs)\*.evtx" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-winEventLogs-$logDate.zip -Force -ErrorAction SilentlyContinue
 	Write-Output "Windows Event logs compressed and backed up"
-}
-
-If ($checkPimServer -like "*pim*" -and $pimLogs) {
-	Get-ChildItem "$testCleanupFolders.pimLogs\*.log" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -ge $rotateDate} | Compress-Archive -DestinationPath $rotatePath\cleanupFolders-pimLogs-$logDate.zip -Force -ErrorAction SilentlyContinue
-	Write-Output "PIM Enableserver logs compressed and backed up"
 }
 
 # WBEM Repository Cleanup to help with slow logon times and other WMI-related issues
