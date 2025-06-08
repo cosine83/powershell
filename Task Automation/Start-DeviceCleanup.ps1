@@ -79,7 +79,7 @@ $cleanupFolders = @(
     "C:\Temp",`
     "C:\Windows\System32\LogFiles",`
     "C:\inetpub\logs",`
-    "C:\Windows\System32\winevt\Logs",`
+    "C:\Windows\System32\winevt\Logs"
 )
 
 # Create array for Cleanmgr registry keys
